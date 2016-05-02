@@ -124,15 +124,60 @@ namespace MeetingAnalyzer
                 {
                     Console.Write("Enter the Meeting ID (Global Object ID) of the problem meeting: ");
                     strGOID = Console.ReadLine();
-                    bUseSubject = false;
 
-                    Utils.CreateFile(strMailbox, strGOID);
+                    if(!(string.IsNullOrEmpty(strMailbox)) && !(string.IsNullOrEmpty(strGOID)))
+                    {
+                        Utils.CreateFile(strMailbox, strGOID);
+                        bUseSubject = false;
+                    }
+                    else
+                    {
+                        string strYN = "no";
+                        Console.Write("\r\nSMTP address and Subject or Global Object ID must have values. Do you want to try again (yes/no)? ");
+                        strYN = Console.ReadLine().ToLower();
+                        Console.WriteLine();
+                        if (strYN.StartsWith("y"))
+                        {
+                            strMailbox = "";
+                            Timeline.m_strMbx = "";
+                            Utils.m_MBX = "";
+                            strSubject = "";
+                            strGOID = "";
+                            goto NextMtg;
+                        }
+                        else
+                        {
+                            goto Exit;
+                        }
+                    }
                 }
                 else
                 {
                     Utils.m_Subject = strSubject;
-                    Utils.CreateFile(strMailbox, strSubject);
-
+                    if (!(string.IsNullOrEmpty(strMailbox)) && !(string.IsNullOrEmpty(strSubject)))
+                    {
+                        Utils.CreateFile(strMailbox, strSubject);
+                    }
+                    else
+                    {
+                        string strYN = "no";
+                        Console.Write("\r\nSMTP address and Subject or Global Object ID must have values. Do you want to try again (yes/no)? ");
+                        strYN = Console.ReadLine().ToLower();
+                        Console.WriteLine();
+                        if (strYN.StartsWith("y"))
+                        {
+                            strMailbox = "";
+                            Timeline.m_strMbx = "";
+                            Utils.m_MBX = "";
+                            strSubject = "";
+                            strGOID = "";
+                            goto NextMtg;
+                        }
+                        else
+                        {
+                            goto Exit;
+                        }
+                    }
                 }
 
                 Console.WriteLine("\r\nRunning command to retreive the meeting data...");
@@ -236,8 +281,8 @@ namespace MeetingAnalyzer
 
             Exit:
             // Exit the app...
-            Console.Write("\r\nPress the Enter key to close the program.");
-            Console.ReadLine();
+            Console.Write("\r\nExiting the program.");
+            //Console.ReadLine();
         }
     }
 }
