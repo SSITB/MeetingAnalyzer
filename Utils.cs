@@ -4,6 +4,7 @@ using System.Management.Automation;
 using System.Management.Automation.Remoting;
 using System.Management.Automation.Runspaces;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Data;
@@ -110,7 +111,8 @@ namespace MeetingAnalyzer
             }
             m_AppPath = AppDomain.CurrentDomain.BaseDirectory;
             m_FilePath = m_AppPath + strUser + "_" + strSubject + ".log";
-            File.Create(m_FilePath);
+            //File.Create(m_FilePath);
+            //File.SetAttributes(m_FilePath, FileAttributes.Normal);
         }
 
         //
@@ -118,13 +120,19 @@ namespace MeetingAnalyzer
         //
         public static void CreateCSVFile(string strUser, string strSubject)
         {
-            string strHeader = "AppointmentAuxiliaryFlags,AppointmentRecurrenceBlob,AppointmentRecurring,AppointmentState,CalendarItemType,CalendarLogTriggerAction,CalendarProcessed," +
+            /*string strHeader = "AppointmentAuxiliaryFlags,AppointmentRecurrenceBlob,AppointmentRecurring,AppointmentState,CalendarItemType,CalendarLogTriggerAction,CalendarProcessed," +
                                 "CleanGlobalObjectId,ClientInfoString,ClientIntent,DisplayAttendeesCc,DisplayAttendeesTo,EndTime,EndWallClock,FreeBusyStatus,From," +
                                 "HijackedMeeting,IsAllDayEvent,IsCancelled,IsException,IsMeeting,IsOrganizerProperty,IsProcessed,IsRecurring,IsSeriesCancelled,IsSoftDeleted," +
                                 "ItemClass,LastModifiedTime,Location,MapiEndTime,MapiStartTime,MeetingRequestType,OriginalLastModifiedTime,ReceivedBy,ReceivedRepresenting," +
                                 "RecurrencePattern,ResponsibleUserName,SenderEmailAddress,SentRepresentingDisplayName,SentRepresentingEmailAddress,StartTime,StartWallClock," +
-                                "SubjectProperty,TimeZone,ViewEndTime,ViewStartTime,ItemFolderName";
-            
+                                "SubjectProperty,TimeZone,ViewEndTime,ViewStartTime,ItemFolderName";*/
+            string strHeader = "SubjectProperty,ItemClass,CalendarLogTriggerAction,ClientInfoString,ResponsibleUserName,FreeBusyStatus,AppointmentState,OriginalLastModifiedTime," +
+                                "AppointmentAuxiliaryFlags,AppointmentRecurrenceBlob,AppointmentRecurring,CalendarItemType,CalendarProcessed,CleanGlobalObjectId,ClientIntent," +
+                                "DisplayAttendeesCc,DisplayAttendeesTo,EndTime,EndWallClock,From,HijackedMeeting,IsAllDayEvent,IsCancelled,IsException,IsMeeting,IsOrganizerProperty," +
+                                "IsProcessed,IsRecurring,IsSeriesCancelled,IsSoftDeleted,LastModifiedTime,Location,MapiEndTime,MapiStartTime,MeetingRequestType,ParentDisplay,ReceivedBy," +
+                                "ReceivedRepresenting,RecurrencePattern,SenderEmailAddress,SentRepresentingDisplayName,SentRepresentingEmailAddress,StartTime,StartWallClock," +
+                                "TimeZone,ViewEndTime,ViewStartTime";
+
             if (!(string.IsNullOrEmpty(strUser)))
             {
                 strUser = string.Concat(strUser.Split(Path.GetInvalidFileNameChars(), StringSplitOptions.RemoveEmptyEntries));
@@ -150,62 +158,73 @@ namespace MeetingAnalyzer
         //
         public static void WriteMsgData(DataSet ds)
         {
-            string[] rgstrIgnore = new string[] {
-                "ToString",
-                "Equals",
-                "GetHashCode",
-                "GetType"};
+            Console.WriteLine("Writing data to files...");
+
+            StringCollection strColCSV = new StringCollection();
+            string[] strCSVProps = new string[] {
+                "SubjectProperty", "ItemClass", "CalendarLogTriggerAction", "ClientInfoString", "ResponsibleUserName", "FreeBusyStatus", "AppointmentState", "OriginalLastModifiedTime",
+                "AppointmentAuxiliaryFlags", "AppointmentRecurrenceBlob", "AppointmentRecurring", "CalendarItemType", "CalendarProcessed", "CleanGlobalObjectId", "ClientIntent",
+                "DisplayAttendeesCc", "DisplayAttendeesTo", "EndTime", "EndWallClock", "From", "HijackedMeeting", "IsAllDayEvent", "IsCancelled", "IsException", "IsMeeting",
+                "IsOrganizerProperty", "IsProcessed", "IsRecurring", "IsSeriesCancelled", "IsSoftDeleted", "LastModifiedTime", "Location", "MapiEndTime", "MapiStartTime",
+                "MeetingRequestType", "ParentDisplay", "ReceivedBy", "ReceivedRepresenting", "RecurrencePattern", "SenderEmailAddress", "SentRepresentingDisplayName",
+                "SentRepresentingEmailAddress", "StartTime", "StartWallClock", "TimeZone", "ViewEndTime", "ViewStartTime"
+            };
+            strColCSV.AddRange(strCSVProps);
 
             foreach (DataTable dt in ds.Tables)
             {
                 //Console.WriteLine("====================================================");
 
-                foreach (DataRow dr in dt.Rows)
+                foreach (string strP in strCSVProps)
                 {
-                    string strProp = dr["PropName"].ToString();
-                    string strVal = dr["PropVal"].ToString();
-                    string strCSV = "";
-
-                    // make easier-to-read output (converting a number / hex to understandable text)
-
-                    if (strProp == "AppointmentState")
+                    foreach (DataRow dr in dt.Rows)
                     {
-                        if (!(string.IsNullOrEmpty(strVal)))
-                        {
-                            HandleASF(ref strVal);
-                        }
-                    }
+                        string strProp = dr["PropName"].ToString();
 
-                    if (strProp == "FreeBusyStatus")
-                    {
-                        if (!(string.IsNullOrEmpty(strVal)))
+                        if (strP == strProp)
                         {
-                            HandleBusyStatus(ref strVal);
-                        }
-                    }
+                            string strVal = dr["PropVal"].ToString();
+                            string strCSV = "";
 
-                    if (strProp == "AppointmentAuxiliaryFlags")
-                    {
-                        if (!(string.IsNullOrEmpty(strVal)))
-                        {
-                            HandleAuxFlags(ref strVal);
-                        }
-                    }
+                            // make easier-to-read output (converting a number / hex to understandable text)
 
-                    if (!(rgstrIgnore.Contains(strProp)))  // don't print out the things that aren't actually properties
-                    {
-                        strVal = strVal.Replace(',', ';');
-                        string strOut = FormatOutputString(strProp, strVal);
-                        //Console.WriteLine(strOut);
-                        if (strProp != "ItemFolderName")
-                        {
-                            strCSV = strVal + ",";
+                            if (strProp == "AppointmentState")
+                            {
+                                if (!(string.IsNullOrEmpty(strVal)))
+                                {
+                                    HandleASF(ref strVal);
+                                }
+                            }
+
+                            if (strProp == "FreeBusyStatus")
+                            {
+                                if (!(string.IsNullOrEmpty(strVal)))
+                                {
+                                    HandleBusyStatus(ref strVal);
+                                }
+                            }
+
+                            if (strProp == "AppointmentAuxiliaryFlags")
+                            {
+                                if (!(string.IsNullOrEmpty(strVal)))
+                                {
+                                    HandleAuxFlags(ref strVal);
+                                }
+                            }
+
+                            strVal = strVal.Replace(',', ';');
+                            //string strOut = FormatOutputString(strProp, strVal);
+                            //Console.WriteLine(strOut);
+                            if (strProp != "ViewStartTime")
+                            {
+                                strCSV = strVal + ",";
+                            }
+                            else
+                            {
+                                strCSV = strVal;
+                            }
+                            File.AppendAllText(m_CSVPath, strCSV);
                         }
-                        else
-                        {
-                            strCSV = strVal;
-                        }
-                        File.AppendAllText(m_CSVPath, strCSV);
                     }
                 }
                 File.AppendAllText(m_CSVPath, Environment.NewLine);

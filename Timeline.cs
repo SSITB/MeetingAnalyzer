@@ -1018,7 +1018,6 @@ namespace MeetingAnalyzer
         //
         public static void CreateTimeline(DataSet ds)
         {
-
             if (ds.Tables.Count > 0)
             {
                 // See if the meeting item designates this user as the organizer

@@ -64,7 +64,7 @@ namespace MeetingAnalyzer
         public string TimeZoneDesc { get { return GetProp("TimeZone"); } }                              //dispidTimeZoneDesc
         public string ViewEndTime { get { return GetProp("ViewEndTime"); } }                            //0x0022 Cal Asst
         public string ViewStartTime { get { return GetProp("ViewStartTime"); } }                        //0x0021 Cal Asst
-        public string ParentFolder { get { return GetProp("ItemFolderName"); } }                        //PR_PARENT_DISPLAY
+        public string ParentFolder { get { return GetProp("ParentDisplay"); } }                        //PR_PARENT_DISPLAY
 
         // Get the value for a given property
         public string GetProp(string strName, string strProp = "PropVal")

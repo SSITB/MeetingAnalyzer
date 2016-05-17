@@ -180,7 +180,7 @@ namespace MeetingAnalyzer
                     }
                 }
 
-                Console.WriteLine("\r\nRunning command to retreive the meeting data...");
+                Console.WriteLine("\r\nRunning command to retrieve the meeting data...");
 
                 // Run Get-CalendarDiagnosticObjects to get the version history data
                 // Get-CalendarDiagnosticObjects -Identity <user smtp address> -Subject <meeting subject>  -OutputProperties Custom -CustomPropertyNames ItemClass,NormalizedSubject...
@@ -196,8 +196,9 @@ namespace MeetingAnalyzer
                     {
                         psh.AddParameter("-MeetingId", strGOID);
                     }
-                    psh.AddParameter("-OutputProperties", "Custom");
+                    //psh.AddParameter("-OutputProperties", "Custom");
                     psh.AddParameter("-CustomPropertyNames", Utils.rgstrPropsToGet);
+                    psh.AddParameter("-ShouldBindToItem", 1);
 
                     pshResults = psh.Invoke();
                 }
@@ -211,7 +212,7 @@ namespace MeetingAnalyzer
                 if (pshResults.Count > 0)
                 {
                     MsgData md = new MsgData();
-                    Console.WriteLine("Successfully retreived the meeting data.\r\n");
+                    Console.WriteLine("Successfully retrieved the meeting data.\r\n");
 
                     Timeline.m_iNumMsgs = pshResults.Count;
                     Console.Write("Importing data from messages.");
@@ -225,7 +226,7 @@ namespace MeetingAnalyzer
                 }
                 else
                 {
-                    Console.WriteLine("No meeting data was retreived. Check the user and meeting information and try again.\r\n");
+                    Console.WriteLine("No meeting data was retrieved. Check the user and meeting information and try again.\r\n");
                     psh.Commands.Clear();
                     pshResults.Clear();
                     Utils.Reset();
@@ -282,7 +283,7 @@ namespace MeetingAnalyzer
             Exit:
             // Exit the app...
             Console.Write("\r\nExiting the program.");
-            //Console.ReadLine();
+            Console.ReadLine();
         }
     }
 }
