@@ -283,7 +283,7 @@ namespace MeetingAnalyzer
             Exit:
             // Exit the app...
             Console.Write("\r\nExiting the program.");
-            Console.ReadLine();
+            //Console.ReadLine();
         }
     }
 }
