@@ -16,6 +16,7 @@ namespace MeetingAnalyzer
     {
         static void Main(string[] args)
         {
+            string strURI = "";
             string strAdminName = "";
             string strPwd = "";
             string strMailbox = "";
@@ -29,7 +30,18 @@ namespace MeetingAnalyzer
             Console.WriteLine("Meeting Analyzer");
             Console.WriteLine("================");
             Console.WriteLine("Creates a timeline of a meeting and reports any problems found.\r\n");
-            
+
+            Console.WriteLine("Enter a connection URI for remote powershell.");
+            Console.WriteLine("You can leave this blank for Office 365 connections, or enter a");
+            Console.Write("URI like \"https://outlook.office365.com/powershell-liveid/\": ");
+            strURI = Console.ReadLine();
+            if (string.IsNullOrEmpty(strURI))
+            {
+                // >>> O365 - https://outlook.office365.com/powershell-liveid/ (from https://technet.microsoft.com/en-us/library/jj984289(v=exchg.160).aspx)
+                strURI = "https://outlook.office365.com/powershell-liveid/";
+            }
+
+            Console.WriteLine("");
             // get the tenant admin
             Console.Write("Enter the tenant admin name (eg. admin@tailspintoys.onmicrosoft.com): ");
             strAdminName = Console.ReadLine();
@@ -80,7 +92,7 @@ namespace MeetingAnalyzer
             strAdminName = null;
 
             // Now make the connection object for the service
-            Uri uriPS = new Uri("https://outlook.office365.com/powershell-liveid/"); // O365 - https://outlook.office365.com/powershell-liveid/ (from https://technet.microsoft.com/en-us/library/jj984289(v=exchg.160).aspx)
+            Uri uriPS = new Uri(strURI); 
             string strShellUri = "http://schemas.microsoft.com/powershell/Microsoft.Exchange";  
             WSManConnectionInfo connectionInfo = new WSManConnectionInfo(uriPS, strShellUri, psCred);
             connectionInfo.AuthenticationMechanism = AuthenticationMechanism.Basic;

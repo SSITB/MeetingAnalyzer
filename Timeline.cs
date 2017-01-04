@@ -63,6 +63,11 @@ namespace MeetingAnalyzer
                     "IPM.Schedule.Meeting.Resp.Tent",
                     "IPM.Schedule.Meeting.Notification.Forward",
                     "IPM.Schedule.Inquiry",                                     // Calendar Repair Agent
+                    "IPM.CalendarSharing.EventUpdate",
+                    "IPM.CalendarSharing.EventDelete",
+                    "IPM.CalendarSharing.Workflow",
+                    "IPM.Schedule.Meeting.Request.AttendeeListReplication",
+                    "IPM.MeetingMessageSeries.Request.AttendeeListReplication",
                     "IPM.OLE.CLASS.{00061055-0000-0000-C000-000000000046}"};    // string for a meeting exception - which shows up "sometimes"};
 
 
@@ -554,13 +559,13 @@ namespace MeetingAnalyzer
                         {
                             Console.BackgroundColor = ConsoleColor.White;
                             Console.ForegroundColor = ConsoleColor.Red;
-                            WriteStdOutput(msg, "The item has been cancelled and freed from the Calendar by ");
+                            WriteStdOutput(msg, "The item has been cancelled and freed from the Calendar");
                             Console.ResetColor();
                         }
                     }
                     else if (msg.BusyStatus == "1")
                     {
-                        WriteStdOutput(msg, "A tentative item was created on the Calendar by ");
+                        WriteStdOutput(msg, "A tentative item was created on the Calendar");
                     }
                     else if (msg.BusyStatus == "2")
                     {
@@ -572,11 +577,11 @@ namespace MeetingAnalyzer
                                 m_bAccepted = true;
                                 if (bIsDelegate)
                                 {
-                                    WriteStdOutput(msg, "Organizer's Calendar. Delegate created the item in the Calendar using ");
+                                    WriteStdOutput(msg, "Organizer's Calendar. Delegate created the item in the Calendar");
                                 }
                                 else
                                 {
-                                    WriteStdOutput(msg, "Organizer's Calendar. The item was created in the Calendar by ");
+                                    WriteStdOutput(msg, "Organizer's Calendar. The item was created in the Calendar");
                                 }
                             }
                         }
@@ -622,13 +627,13 @@ namespace MeetingAnalyzer
                         {
                             Console.BackgroundColor = ConsoleColor.White;
                             Console.ForegroundColor = ConsoleColor.Red;
-                            WriteStdOutput(msg, "The item has been cancelled and freed from the Calendar by ");
+                            WriteStdOutput(msg, "The item has been cancelled and freed from the Calendar");
                             Console.ResetColor();
                         }
                     }
                     if (msg.BusyStatus == "1")
                     {
-                        WriteStdOutput(msg, "The tentative item was updated in the Calendar by ");
+                        WriteStdOutput(msg, "The tentative item was updated in the Calendar");
                     }
                     if (msg.BusyStatus == "2")
                     {
@@ -667,7 +672,7 @@ namespace MeetingAnalyzer
                 {
                     Console.BackgroundColor = ConsoleColor.White;
                     Console.ForegroundColor = ConsoleColor.Red;
-                    WriteStdOutput(msg, "The item was deleted from the Calendar by ");
+                    WriteStdOutput(msg, "The item was deleted from the Calendar");
                     Console.ResetColor();
                     ResetAfterDelete();
                 }
@@ -676,7 +681,7 @@ namespace MeetingAnalyzer
                 {
                     Console.BackgroundColor = ConsoleColor.White;
                     Console.ForegroundColor = ConsoleColor.Red;
-                    WriteStdOutput(msg, "The item was deleted from the Calendar by ");
+                    WriteStdOutput(msg, "The item was deleted from the Calendar");
                     Console.ResetColor();
                     ResetAfterDelete();
                     
@@ -718,7 +723,7 @@ namespace MeetingAnalyzer
                     }
                     else
                     {
-                        WriteStdOutput(msg, "The item was deleted from the Calendar by ");
+                        WriteStdOutput(msg, "The item was deleted from the Calendar");
                     }
                     Console.ResetColor();
                     if (bReset == true)
@@ -985,7 +990,7 @@ namespace MeetingAnalyzer
 
             if (msg.ItemMsgClass.Contains("IPM.Schedule.Meeting.Notification.Forward"))
             {
-                if (msg.TriggerAction == "Create")
+                if (msg.TriggerAction == "Create" || msg.TriggerAction == "Update")
                 {
                     if (m_strApptRecurring.ToLower() == "true")
                     {
@@ -1550,54 +1555,67 @@ namespace MeetingAnalyzer
         //
         public static void WriteStdOutput(TLMsg msg, string strLine)
         {
-            if (msg.ClientInfoString.Contains("MSExchangeRPC"))
+            if (!(string.IsNullOrEmpty(msg.ClientInfoString)))
             {
-                Utils.Write(strLine + "Outlook.");
-            }
-            else if (msg.ClientInfoString.Contains("Hub Transport"))
-            {
-                Utils.Write(strLine + "the Calendar Assistant.");
-            }
-            else if (msg.ClientInfoString.Contains("CalendarRepairAssistant"))
-            {
-                Utils.Write(strLine + "the Calendar Repair Assistant.");
-            }
-            else if (msg.ClientInfoString.Contains("MSExchangeMailboxAssistants"))
-            {
-                Utils.Write(strLine + "the Mailbox Assistant.");
-            }
-            else if (msg.ClientInfoString.Contains("MacOutlook"))
-            {
-                Utils.Write(strLine + "a Mac Outlook client.");
-            }
-            else if (msg.ClientInfoString.Contains("Client=OWA"))
-            {
-                Utils.Write(strLine + "OWA (Outlook Web App).");
-            }
-            else if (msg.ClientInfoString.Contains("Apple"))
-            {
-                Utils.Write(strLine + "an Apple Device.");
-                Utils.Write("Client Info String: " + msg.ClientInfoString);
-            }
-            else if (msg.ClientInfoString.Contains("Android"))
-            {
-                Utils.Write(strLine + "an Android Device.");
-                Utils.Write("Client Info String: " + msg.ClientInfoString);
-            }
-            else if (msg.ClientInfoString.Contains("DeviceType=WP"))
-            {
-                Utils.Write(strLine + "a Windows Phone.");
-                Utils.Write("Client Info String: " + msg.ClientInfoString);
-            }
-            else if (msg.ClientInfoString.Contains("Moto"))
-            {
-                Utils.Write(strLine + "a Motorola Device.");
-                Utils.Write("Client Info String: " + msg.ClientInfoString);
-            }
-            else
-            {
-                Utils.Write(strLine + "the following client:");
-                Utils.Write("Client Info String: " + msg.ClientInfoString);
+                strLine = strLine + " via ";
+
+                if (msg.ClientInfoString.Contains("MSExchangeRPC"))
+                {
+                    Utils.Write(strLine + "Outlook.");
+                }
+                else if (msg.ClientInfoString.Contains("Hub Transport"))
+                {
+                    Utils.Write(strLine + "the Calendar Assistant.");
+                }
+                else if (msg.ClientInfoString.Contains("CalendarRepairAssistant"))
+                {
+                    Utils.Write(strLine + "the Calendar Repair Assistant.");
+                }
+                else if (msg.ClientInfoString.Contains("MSExchangeMailboxAssistants"))
+                {
+                    Utils.Write(strLine + "the Mailbox Assistant.");
+                }
+                else if (msg.ClientInfoString.Contains("MacOutlook"))
+                {
+                    Utils.Write(strLine + "a Mac Outlook client.");
+                }
+                else if (msg.ClientInfoString.Contains("Client=OWA"))
+                {
+                    Utils.Write(strLine + "OWA (Outlook Web App).");
+                }
+                else if (msg.ClientInfoString.Contains("Client=EBA"))
+                {
+                    Utils.Write(strLine + "an Event Based Assistant.");
+                }
+                else if (msg.ClientInfoString.Contains("GriffinEBA") || msg.ClientInfoString.Contains("GriffinTBA"))
+                {
+                    Utils.Write(strLine + "an Exchange Assistant.");
+                }
+                else if (msg.ClientInfoString.Contains("Apple"))
+                {
+                    Utils.Write(strLine + "an Apple Device.");
+                    Utils.Write("Client Info String: " + msg.ClientInfoString);
+                }
+                else if (msg.ClientInfoString.Contains("Android"))
+                {
+                    Utils.Write(strLine + "an Android Device.");
+                    Utils.Write("Client Info String: " + msg.ClientInfoString);
+                }
+                else if (msg.ClientInfoString.Contains("DeviceType=WP"))
+                {
+                    Utils.Write(strLine + "a Windows Phone.");
+                    Utils.Write("Client Info String: " + msg.ClientInfoString);
+                }
+                else if (msg.ClientInfoString.Contains("Moto"))
+                {
+                    Utils.Write(strLine + "a Motorola Device.");
+                    Utils.Write("Client Info String: " + msg.ClientInfoString);
+                }
+                else
+                {
+                    Utils.Write(strLine + "the following client:");
+                    Utils.Write("Client Info String: " + msg.ClientInfoString);
+                }
             }
         }
 
