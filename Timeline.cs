@@ -743,7 +743,10 @@ namespace MeetingAnalyzer
                     // if any changes to the recurrence blob then do stuff - otherwise no need to do anything
                     if (m_rbPrevious.HexBlob != m_rbCurrent.HexBlob)
                     {
-                        CompareRBs(m_rbPrevious, m_rbCurrent);
+                        if (m_rbPrevious.HexBlob != null) // if changed from single instance to recurring - this might be the first recurrence blob
+                        {
+                            CompareRBs(m_rbPrevious, m_rbCurrent);
+                        }
                     }
                     // Write "current" Recurrence blob out to the log
                     if (rgstrCalNames.Contains(msg.ParentFolder.ToLower()))
