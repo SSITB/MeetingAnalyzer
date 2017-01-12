@@ -23,6 +23,7 @@ namespace MeetingAnalyzer
             string strSubject = "";
             string strGOID = "";
             bool bUseSubject = true;
+            bool bExact = false;
             DataSet dsMsgs = new DataSet("Messages");
 
             Console.WriteLine("");
@@ -33,12 +34,14 @@ namespace MeetingAnalyzer
 
             Console.WriteLine("Enter a connection URI for remote powershell.");
             Console.WriteLine("You can leave this blank for Office 365 connections, or enter a");
-            Console.Write("URI like \"https://outlook.office365.com/powershell-liveid/\": ");
+            Console.WriteLine("URI like \"https://outlook.office365.com/powershell-liveid\"");
+            Console.Write("or \"https://yourdomain.onmicrosoft.com/powershell-liveid\" : ");
+
             strURI = Console.ReadLine();
             if (string.IsNullOrEmpty(strURI))
             {
-                // >>> O365 - https://outlook.office365.com/powershell-liveid/ (from https://technet.microsoft.com/en-us/library/jj984289(v=exchg.160).aspx)
-                strURI = "https://outlook.office365.com/powershell-liveid/";
+                // >>> O365 - https://outlook.office365.com/powershell-liveid (from https://technet.microsoft.com/en-us/library/jj984289(v=exchg.160).aspx)
+                strURI = "https://outlook.office365.com/powershell-liveid";
             }
 
             Console.WriteLine("");
@@ -165,10 +168,23 @@ namespace MeetingAnalyzer
                 }
                 else
                 {
+                    strSubject = strSubject.Trim('"'); // remove quotes - they make things not work.
                     Utils.m_Subject = strSubject;
                     if (!(string.IsNullOrEmpty(strMailbox)) && !(string.IsNullOrEmpty(strSubject)))
                     {
                         Utils.CreateFile(strMailbox, strSubject);
+                        string strExact = "no";
+                        Console.Write("Search for exact match on Subject? (yes/no): ");
+                        strExact = Console.ReadLine().ToLower();
+                        if (strExact.StartsWith("y"))
+                        {
+                            bExact = true;
+                        }
+                        else
+                        {
+                            bExact = false;
+                        }
+
                     }
                     else
                     {
@@ -192,6 +208,7 @@ namespace MeetingAnalyzer
                     }
                 }
 
+                
                 Console.WriteLine("\r\nRunning command to retrieve the meeting data...");
 
                 // Run Get-CalendarDiagnosticObjects to get the version history data
@@ -207,6 +224,10 @@ namespace MeetingAnalyzer
                     else
                     {
                         psh.AddParameter("-MeetingId", strGOID);
+                    }
+                    if (bExact)
+                    {
+                        psh.AddParameter("-ExactMatch", 1);
                     }
                     //psh.AddParameter("-OutputProperties", "Custom");
                     psh.AddParameter("-CustomPropertyNames", Utils.rgstrPropsToGet);
