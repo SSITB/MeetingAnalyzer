@@ -1,0 +1,7 @@
+D:\Projects\MeetingAnalyzer\MeetingAnalyzer\bin\Debug\MeetingAnalyzer.exe.config
+D:\Projects\MeetingAnalyzer\MeetingAnalyzer\bin\Debug\MeetingAnalyzer.exe
+D:\Projects\MeetingAnalyzer\MeetingAnalyzer\bin\Debug\MeetingAnalyzer.pdb
+D:\Projects\MeetingAnalyzer\MeetingAnalyzer\bin\Debug\System.Management.Automation.dll
+D:\Projects\MeetingAnalyzer\MeetingAnalyzer\obj\Debug\MeetingAnalyzer.csprojResolveAssemblyReference.cache
+D:\Projects\MeetingAnalyzer\MeetingAnalyzer\obj\Debug\MeetingAnalyzer.exe
+D:\Projects\MeetingAnalyzer\MeetingAnalyzer\obj\Debug\MeetingAnalyzer.pdb

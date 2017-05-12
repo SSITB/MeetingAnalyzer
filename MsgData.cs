@@ -23,6 +23,7 @@ namespace MeetingAnalyzer
         private static int tblNum = 0;
 
         public static string m_GOID = "";
+        public static bool m_bNoTime = false;
 
         public MsgData()
         {
@@ -89,15 +90,40 @@ namespace MeetingAnalyzer
             // This is the one we really want to use for creating the timeline.
             DataRow[] modTimeRows = dt.Select("PropName = 'OriginalLastModifiedTime'");
             if (modTimeRows.Length > 0)
-            { 
-                dt.ExtendedProperties.Add("OrigModTime", DateTime.Parse(modTimeRows[0]["PropVal"].ToString()));
+            {
+                string strTime = modTimeRows[0]["PropVal"].ToString();
+                if (!(strTime.Contains("Invalid")))
+                {
+                    dt.ExtendedProperties.Add("OrigModTime", DateTime.Parse(modTimeRows[0]["PropVal"].ToString()));
+                }
+                else
+                {
+                    modTimeRows = dt.Select("PropName = 'LastModifiedTime'");
+                    strTime = modTimeRows[0]["PropVal"].ToString();
+                    if (!(strTime.Contains("Invalid")))
+                    {
+                        dt.ExtendedProperties.Add("OrigModTime", DateTime.Parse(modTimeRows[0]["PropVal"].ToString()));
+                    }
+                    else
+                    {
+                        m_bNoTime = true;
+                    }
+                }
             }
             else // if OrigLastModTime isn't there then use LastModTime - not as good if we must use this.
             {
                 modTimeRows = dt.Select("PropName = 'LastModifiedTime'");
                 if (modTimeRows.Length > 0)
                 {
-                    dt.ExtendedProperties.Add("OrigModTime", DateTime.Parse(modTimeRows[0]["PropVal"].ToString()));
+                    string strTime = modTimeRows[0]["PropVal"].ToString();
+                    if (!(strTime.Contains("Invalid")))
+                    {
+                        dt.ExtendedProperties.Add("OrigModTime", DateTime.Parse(modTimeRows[0]["PropVal"].ToString()));
+                    }
+                    else
+                    {
+                        m_bNoTime = true;
+                    }
                 }
             }
 

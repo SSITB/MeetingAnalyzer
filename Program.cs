@@ -269,8 +269,11 @@ namespace MeetingAnalyzer
                     goto NextMtg;
                 }
                 // we got the data imported - now we can sort by the Modified Time
-                dsMsgs = MsgData.dsSort(MsgData.msgDataSet, "OrigModTime");
-                
+                if (MsgData.m_bNoTime == false)
+                {
+                    dsMsgs = MsgData.dsSort(MsgData.msgDataSet, "OrigModTime");
+                }
+
                 // Create the timeline with the sorted messages
                 Timeline.CreateTimeline(dsMsgs);
 
